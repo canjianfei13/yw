@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ==================== 配置 ====================
-const TOKEN = '';
+const TOKEN = 'authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI2NDMzLCJNYXBDbGFpbXMiOnt9fQ.faF4-GduXX_ZUfDdp9wnljFl3F7hPHoj8_ogzS8Whoc';
 
 const ENABLE_GAMBLING = true;
 
@@ -23,7 +23,7 @@ const CONFIG = {
     'alias': '1.3.0',
     'version': '130',
     'grpc-accept-encoding': 'gzip',
-    'grpc-timeout': '4998214u'
+    'grpc-timeout': '469039u'
   }
 };
 
