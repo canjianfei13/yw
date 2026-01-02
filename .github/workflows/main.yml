@@ -29,7 +29,8 @@ jobs:
       - name: 4. 执行脚本
         run: node index.js
         env:
+          NODE_ENV: production
           # 将你在 Settings 里设置的 Secret 映射给脚本
-          TOKEN: ${{ secrets.TOKEN }}
+          #TOKEN: ${{ secrets.TOKEN }}
           # 如果有其他变量，请继续在这添加，例如:
           # USER_ID: ${{ secrets.USER_ID }}
