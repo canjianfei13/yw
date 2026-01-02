@@ -1,1 +1,33 @@
+name: XSimple Auto Bot
 
+on:
+  push:
+    branches: [ main ]
+  schedule:
+    # 定时任务：每天北京时间 08:00 (UTC 00:00) 运行一次
+    - cron: '0 0 * * *'
+  workflow_dispatch: # 允许手动点击按钮运行
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v3
+
+      - name: 设置 Node.js 环境
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16' # 建议使用 16 或更高版本以支持 http2 等特性
+          cache: 'npm'
+
+      - name: 安装依赖
+        run: npm install
+
+      - name: 执行脚本
+        run: node index.js
+        env:
+          # 如果你的脚本需要从环境变量读取 Token 或账号，请在此配置
+          # MY_TOKEN: ${{ secrets.MY_TOKEN }}
+          NODE_ENV: production
