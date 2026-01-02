@@ -3,11 +3,9 @@ name: YW-Auto-Bot
 on:
   workflow_dispatch: # 允许手动点按钮运行
   schedule:
-    # 设置定时任务（例如每天北京时间 08:30 运行）
-    # 国际标准时间 00:30 等于北京时间 08:30
-    - cron: '30 0 * * *'
-  push:
-    branches: [ main ] # 每次你上传新代码时运行
+    - cron: '0 */1 * * *'  # 每 1 小时自动运行一次
+  #push:
+   # branches: [ main ] # 每次你上传新代码时运行
 
 jobs:
   execute-bot:
