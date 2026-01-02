@@ -1,33 +1,35 @@
-name: XSimple Auto Bot
+name: YW-Auto-Bot
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch: # 允许手动点按钮运行
   schedule:
-    # 定时任务：每天北京时间 08:00 (UTC 00:00) 运行一次
-    - cron: '0 0 * * *'
-  workflow_dispatch: # 允许手动点击按钮运行
+    # 设置定时任务（例如每天北京时间 08:30 运行）
+    # 国际标准时间 00:30 等于北京时间 08:30
+    - cron: '30 0 * * *'
+  push:
+    branches: [ main ] # 每次你上传新代码时运行
 
 jobs:
-  build:
+  execute-bot:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 检出代码
+      - name: 1. 拉取代码
         uses: actions/checkout@v3
 
-      - name: 设置 Node.js 环境
+      - name: 2. 安装 Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: '16' # 建议使用 16 或更高版本以支持 http2 等特性
+          node-version: '16'
           cache: 'npm'
 
-      - name: 安装依赖
+      - name: 3. 安装依赖
         run: npm install
 
-      - name: 执行脚本
+      - name: 4. 执行脚本
         run: node index.js
         env:
-          # 如果你的脚本需要从环境变量读取 Token 或账号，请在此配置
-          # MY_TOKEN: ${{ secrets.MY_TOKEN }}
-          NODE_ENV: production
+          # 将你在 Settings 里设置的 Secret 映射给脚本
+          TOKEN: ${{ secrets.TOKEN }}
+          # 如果有其他变量，请继续在这添加，例如:
+          # USER_ID: ${{ secrets.USER_ID }}
