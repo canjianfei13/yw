@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package api.props;
+
+service Props {
+  rpc GetMyMakingV2(GetMyMakingV2Request) returns (GetMyMakingV2Response);
+  rpc GetMyBlueprint(GetMyBlueprintRequest) returns (GetMyBlueprintResponse);
+  rpc FinishMakingEquipment(FinishMakingEquipmentRequest) returns (FinishMakingEquipmentResponse);
+  rpc GetMyProps(GetMyPropsRequest) returns (GetMyPropsResponse);
+  rpc MakeEquipment(MakeEquipmentRequest) returns (MakeEquipmentResponse);
+}
+
+message GetMyMakingV2Request {}
+
+message GetMyMakingV2Response {
+  repeated MyEquipment equipment = 1;
+}
+
+message GetMyBlueprintRequest {}
+
+message GetMyBlueprintResponse {
+  repeated Blueprint data = 1;
+}
+
+message Blueprint {
+  int64 id = 1;
+  int64 equipmentId = 2;
+  string name = 4;
+  string type = 5;
+  int64 duration = 6;
+  int32 minLevel = 7;
+  int32 limit = 8;
+  repeated MyProps props = 9;
+  int32 maxLevel = 10;
+}
+
+message FinishMakingEquipmentRequest {
+  int64 id = 1;
+}
+
+message FinishMakingEquipmentResponse {}
+
+message GetMyPropsRequest {
+  int32 pageNum = 1;
+  int32 pageSize = 2;
+}
+
+message GetMyPropsResponse {
+  repeated MyProps list = 1;
+}
+
+message MakeEquipmentRequest {
+  int64 blueprintId = 1;
+}
+
+message MakeEquipmentResponse {}
+
+message MyEquipment {
+  int64 id = 1;
+  string name = 2;
+  string type = 3;
+  string quality = 4;
+  string affinity = 5;
+  int32 level = 6;
+  int32 focus = 7;
+  int32 luck = 8;
+  int32 reputation = 9;
+  int32 brushEfficiency = 10;
+  int32 fanEfficiency = 11;
+  int32 inkStoneEfficiency = 12;
+  int32 divination = 13;
+  int32 fortune = 14;
+  int32 spiritWeave = 15;
+  int32 ruinBreak = 16;
+  int32 price = 17;
+  string status = 18;
+  bool tradable = 19;
+  int64 validTime = 20;
+  int64 equipmentId = 21;
+  int32 markedPrice = 22;
+  bool locked = 23;
+  int32 mystique = 24;
+  string brand = 25;
+  int32 ownershipType = 26;
+}
+
+message MyProps {
+  int64 id = 1;
+  string name = 2;
+  string quality = 3;
+  string type = 4;
+  string summary = 5;
+  int64 count = 6;
+  bool tradable = 7;
+  bool interactivity = 8;
+  int32 price = 9;
+  string currency = 10;
+  int64 equipmentId = 11;
+}

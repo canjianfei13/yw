@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package api.equipment;
+
+service Equipment {
+  rpc GetBrands(GetBrandsRequest) returns (GetBrandsResponse);
+}
+
+message GetBrandsRequest {}
+
+message GetBrandsResponse {
+  repeated Brand brands = 1;
+}
+
+message Brand {
+  int64 id = 1;
+  string name = 2;
+  int64 exp = 3;
+  int32 price = 4;
+  string status = 5;
+  BrandBlueprint blueprint = 6;
+  string affinity = 7;
+  int64 makingTime = 8;
+}
+
+message BrandBlueprint {
+  int64 id = 1;
+  int64 equipmentId = 2;
+  string name = 3;
+  string type = 4;
+  int64 duration = 5;
+  repeated BrandProps props = 6;
+}
+
+message BrandProps {
+  int64 id = 1;
+  string name = 2;
+  string quality = 3;
+  int32 count = 4;
+}

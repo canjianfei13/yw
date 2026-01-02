@@ -1,0 +1,41 @@
+syntax = "proto3";
+
+package api.game;
+
+service Game {
+  rpc GetTodyGambling(EmptyRequest) returns (Gambling);
+  rpc GetGamblingReward(GetGamblingRewardRequest) returns (Gambling);
+  rpc BetGambling(BetGamblingRequest) returns (BetGamblingResponse);
+}
+
+message EmptyRequest {}
+
+message Gambling {
+  int64 id = 1;
+  string name = 2;
+  int64 prize = 3;
+  int64 people = 4;
+  string first = 5;
+  string second = 6;
+  string third = 7;
+  int64 betStartTime = 8;
+  int64 betEndTime = 9;
+  int64 startTime = 10;
+  int64 endTime = 11;
+  int64 rewardStatus = 12;
+  bool canBet = 13;
+}
+
+message GetGamblingRewardRequest {
+  int64 id = 1;
+}
+
+message BetGamblingRequest {
+  int64 id = 1;
+}
+
+message BetGamblingResponse {
+  string info = 1;
+  int32 score = 2;
+  Gambling gambling = 3;
+}

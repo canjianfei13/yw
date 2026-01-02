@@ -1,0 +1,44 @@
+syntax = "proto3";
+
+package api.player;
+
+service Player {
+  rpc GetMyBelongings(EmptyRequest) returns (MyBelongings);
+}
+
+message EmptyRequest {}
+
+message MyBelongings {
+  int32 level = 1;
+  int64 exp = 2;
+  int64 expMax = 3;
+  int32 coin = 4;
+  int32 crystal = 5;
+  int32 gem = 6;
+  int32 sp = 7;
+  string affinity = 8;
+  int32 focus = 9;
+  int32 luck = 10;
+  int32 reputation = 11;
+  int32 brushEfficiency = 12;
+  int32 fanEfficiency = 13;
+  int32 inkStoneEfficiency = 14;
+  int32 brushLevel = 15;
+  int32 brushExp = 16;
+  int32 brushExpMax = 17;
+  int32 fanLevel = 18;
+  int32 fanExp = 19;
+  int32 fanExpMax = 20;
+  int32 inkStoneLevel = 21;
+  int32 inkStoneExp = 22;
+  int32 inkStoneExpMax = 23;
+  int32 divination = 24;
+  int32 fortune = 25;
+  int32 spiritWeave = 26;
+  int32 ruinBreak = 27;
+  int32 nonRareTimes = 28;
+  int32 deposit = 29;
+  string brand = 30;
+  int64 carteId = 31;
+  int64 buffId = 32;
+}

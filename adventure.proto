@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package api.adventure;
+
+service Adventure {
+  rpc GetMyAdventureList(GetMyAdventureListRequest) returns (GetMyAdventureListResponse);
+  rpc AcceptAdventure(AcceptAdventureRequest) returns (AcceptAdventureResponse);
+  rpc FinishAdventure(FinishAdventureRequest) returns (FinishAdventureResponse);
+  rpc GetFestival(GetFestivalRequest) returns (Festival);
+}
+
+message GetMyAdventureListRequest {}
+
+message GetMyAdventureListResponse {
+  repeated MyAdventure data = 1;
+}
+
+message AcceptAdventureRequest {
+  int64 id = 1;
+}
+
+message AcceptAdventureResponse {}
+
+message FinishAdventureRequest {
+  int64 id = 1;
+}
+
+message FinishAdventureResponse {}
+
+message GetFestivalRequest {}
+
+message Festival {}
+
+message MyAdventure {
+  int64 id = 1;
+  string title = 2;
+  string content = 3;
+  string quality = 4;
+  string type = 5;
+  int32 exp = 6;
+  int32 sp = 7;
+  int32 coin = 8;
+  int32 gem = 9;
+  string category = 10;
+  int64 beginAt = 11;
+  int64 finishAt = 12;
+  string status = 13;
+  int32 duration = 14;
+  repeated MyAdventureProps propsList = 15;
+  bool fate = 16;
+}
+
+message MyAdventureProps {
+  int64 id = 1;
+  string name = 2;
+  string quality = 3;
+  int32 count = 4;
+}
