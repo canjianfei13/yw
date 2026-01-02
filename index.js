@@ -14,7 +14,7 @@ const ENABLE_GAMBLING = true;
 
 const CONFIG = {
   baseUrl: 'https://gacha.reamicro.zhendong.ltd',
-  timeout: 5000,
+  timeout: 15000,
   headers: {
     'user-agent': 'grpc-java-okhttp/1.73.0',
     'content-type': 'application/grpc',
@@ -23,7 +23,7 @@ const CONFIG = {
     'alias': '1.3.0',
     'version': '130',
     'grpc-accept-encoding': 'gzip',
-    'grpc-timeout': '469039u'
+    'grpc-timeout': '1000000u'
   }
 };
 
