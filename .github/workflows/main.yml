@@ -1,34 +1,34 @@
-name: YW-Auto-Bot
+name: Multi-User Auto Run
 
 on:
-  workflow_dispatch: # 允许手动点按钮运行
+  push:
+    branches: [ main ]
   schedule:
-    - cron: '0 */1 * * *'  # 每 1 小时自动运行一次
-  #push:
-   # branches: [ main ] # 每次你上传新代码时运行
+    # 每小时的第 0 分钟自动运行一次 (UTC 时间)
+    # 如果想改频率，可以参考 crontab.guru
+    - cron: '0 * * * *'
+  workflow_dispatch: # 允许手动点击按钮运行
 
 jobs:
-  execute-bot:
+  run-task:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 1. 拉取代码
+      - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: 2. 安装 Node.js 16
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
+          node-version: '18'
           cache: 'npm'
 
-      - name: 3. 安装依赖
+      - name: Install dependencies
         run: npm install
 
-      - name: 4. 执行脚本
+      - name: Run Auto Script
         run: node index.js
         env:
-
-          # 将你在 Settings 里设置的 Secret 映射给脚本
-          TOKEN: ${{ secrets.TOKEN }}
-          # 如果有其他变量，请继续在这添加，例如:
-          # USER_ID: ${{ secrets.USER_ID }}
+          # 关键：从 GitHub Secrets 读取 TOKENS 并传递给代码
+          TOKENS: ${{ secrets.TOKENS }}
+          NODE_ENV: production
