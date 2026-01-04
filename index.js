@@ -44,7 +44,7 @@ class GrpcClient {
   connect() {
     if (!this.client) {
       this.client = http2.connect(this.baseUrl );
-      this.client.on('error', (err) => {}); // 忽略连接级错误，由请求捕获
+      this.client.on('error', () => {}); 
     }
     return this.client;
   }
@@ -113,6 +113,7 @@ class GrpcClient {
 
 // ==================== 辅助函数 ====================
 function hasEnoughMaterials(myProps, requiredMaterials) {
+  if (!requiredMaterials) return true;
   const propsMap = {};
   myProps.forEach(p => propsMap[String(p.id)] = parseInt(p.count || 0));
   for (const req of requiredMaterials) {
@@ -154,8 +155,10 @@ async function handleMaking(client, userLabel) {
   }
 
   if (canMakeNew) {
-    const myProps = (await client.call('api.props.Props', 'GetMyProps', 'api.props.GetMyPropsRequest', 'api.props.GetMyPropsResponse')).data || [];
-    const recipes = (await client.call('api.props.Props', 'GetMakingListV2', 'api.props.GetMakingListV2Request', 'api.props.GetMakingListV2Response')).data || [];
+    const myPropsRes = await client.call('api.props.Props', 'GetMyProps', 'api.props.GetMyPropsRequest', 'api.props.GetMyPropsResponse');
+    const myProps = myPropsRes.data || [];
+    const recipesRes = await client.call('api.props.Props', 'GetMakingListV2', 'api.props.GetMakingListV2Request', 'api.props.GetMakingListV2Response');
+    const recipes = recipesRes.data || [];
     for (const r of recipes) {
       if (hasEnoughMaterials(myProps, r.materials)) {
         await client.call('api.props.Props', 'MakeEquipmentV2', 'api.props.MakeEquipmentV2Request', 'api.props.MakeEquipmentV2Response', { id: r.id });
@@ -168,7 +171,7 @@ async function handleMaking(client, userLabel) {
 
 async function handleGambling(client, userLabel) {
   const game = await client.call('api.game.Game', 'GetTodayGambling', 'api.game.GetTodayGamblingRequest', 'api.game.GetTodayGamblingResponse');
-  if (game.canBet) {
+  if (game && game.canBet) {
     await client.call('api.game.Game', 'BetGambling', 'api.game.BetGamblingRequest', 'api.game.BetGamblingResponse', { id: game.id });
     console.log(`${userLabel} 勾栏投注成功`);
   }
