@@ -138,7 +138,6 @@ async function handleAdventure(client, userLabel) {
 }
 
 async function handleMaking(client, userLabel) {
-  // 修正：使用 GetMyMakingV2Request
   const status = await client.call('api.props.Props', 'GetMyMakingV2', 'api.props.GetMyMakingV2Request', 'api.props.GetMyMakingV2Response');
   const now = Date.now();
   let canMakeNew = true;
