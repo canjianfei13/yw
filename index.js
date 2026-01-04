@@ -138,6 +138,7 @@ async function handleAdventure(client, userLabel) {
 }
 
 async function handleMaking(client, userLabel) {
+  // 修正：使用 GetMyMakingV2Request
   const status = await client.call('api.props.Props', 'GetMyMakingV2', 'api.props.GetMyMakingV2Request', 'api.props.GetMyMakingV2Response');
   const now = Date.now();
   let canMakeNew = true;
@@ -145,7 +146,8 @@ async function handleMaking(client, userLabel) {
   if (status.equipment?.length > 0) {
     for (const eq of status.equipment) {
       if (now >= Number(eq.validTime)) {
-        await client.call('api.props.Props', 'FinishMakingV2', 'api.props.FinishMakingV2Request', 'api.props.FinishMakingV2Response', { id: eq.id });
+        // 修正：使用 FinishMakingEquipmentRequest
+        await client.call('api.props.Props', 'FinishMakingEquipment', 'api.props.FinishMakingEquipmentRequest', 'api.props.FinishMakingEquipmentResponse', { id: eq.id });
         console.log(`${userLabel} 领取制作完成的装备: ${eq.name}`);
       } else {
         canMakeNew = false;
@@ -155,13 +157,19 @@ async function handleMaking(client, userLabel) {
   }
 
   if (canMakeNew) {
-    const myPropsRes = await client.call('api.props.Props', 'GetMyProps', 'api.props.GetMyPropsRequest', 'api.props.GetMyPropsResponse');
-    const myProps = myPropsRes.data || [];
-    const recipesRes = await client.call('api.props.Props', 'GetMakingListV2', 'api.props.GetMakingListV2Request', 'api.props.GetMakingListV2Response');
+    // 修正：GetMyPropsResponse 返回的是 list
+    const myPropsRes = await client.call('api.props.Props', 'GetMyProps', 'api.props.GetMyPropsRequest', 'api.props.GetMyPropsResponse', { pageNum: 1, pageSize: 100 });
+    const myProps = myPropsRes.list || [];
+    
+    // 修正：使用 GetMyBlueprint 获取配方
+    const recipesRes = await client.call('api.props.Props', 'GetMyBlueprint', 'api.props.GetMyBlueprintRequest', 'api.props.GetMyBlueprintResponse');
     const recipes = recipesRes.data || [];
+    
     for (const r of recipes) {
-      if (hasEnoughMaterials(myProps, r.materials)) {
-        await client.call('api.props.Props', 'MakeEquipmentV2', 'api.props.MakeEquipmentV2Request', 'api.props.MakeEquipmentV2Response', { id: r.id });
+      // 适配：Blueprint 中的材料字段是 props
+      if (hasEnoughMaterials(myProps, r.props)) {
+        // 修正：使用 MakeEquipmentRequest 和 blueprintId
+        await client.call('api.props.Props', 'MakeEquipment', 'api.props.MakeEquipmentRequest', 'api.props.MakeEquipmentResponse', { blueprintId: r.id });
         console.log(`${userLabel} 材料充足，开始制作: ${r.name}`);
         break;
       }
@@ -170,7 +178,8 @@ async function handleMaking(client, userLabel) {
 }
 
 async function handleGambling(client, userLabel) {
-  const game = await client.call('api.game.Game', 'GetTodayGambling', 'api.game.GetTodayGamblingRequest', 'api.game.GetTodayGamblingResponse');
+  // 修正：适配 game.proto 中的拼写错误 GetTodyGambling 和 EmptyRequest
+  const game = await client.call('api.game.Game', 'GetTodyGambling', 'api.game.EmptyRequest', 'api.game.Gambling');
   if (game && game.canBet) {
     await client.call('api.game.Game', 'BetGambling', 'api.game.BetGamblingRequest', 'api.game.BetGamblingResponse', { id: game.id });
     console.log(`${userLabel} 勾栏投注成功`);
