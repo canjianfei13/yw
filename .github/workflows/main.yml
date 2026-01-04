@@ -1,34 +1,37 @@
-name: Multi-User Auto Run
+name: YW-Auto-Bot
 
 on:
-  push:
-    branches: [ main ]
+  workflow_dispatch: # 手动触发
   schedule:
-    # 每小时的第 0 分钟自动运行一次 (UTC 时间)
-    # 如果想改频率，可以参考 crontab.guru
-    - cron: '0 * * * *'
-  workflow_dispatch: # 允许手动点击按钮运行
+    - cron: '0 */1 * * *'  # 每1小时自动运行
 
 jobs:
-  run-task:
+  execute-bot:
     runs-on: ubuntu-latest
+    # 定义多用户矩阵，max-parallel:1 确保串行执行
+    strategy:
+      matrix:
+        # 配置需要处理的用户（与Secrets命名对应，如USER1、USER2）
+        user: [USER1, USER2] # 可扩展：添加USER3、USER4等
+      max-parallel: 1 # 关键：强制逐个处理用户，避免并行
 
     steps:
-      - name: Checkout code
+      - name: 1. 拉取代码
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: 2. 安装 Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '16'
           cache: 'npm'
 
-      - name: Install dependencies
+      - name: 3. 安装依赖
         run: npm install
 
-      - name: Run Auto Script
+      - name: 4. 执行脚本（当前用户：${{ matrix.user }}）
         run: node index.js
         env:
-          # 关键：从 GitHub Secrets 读取 TOKENS 并传递给代码
-          TOKENS: ${{ secrets.TOKENS }}
-          NODE_ENV: production
+          # 动态映射当前用户的Token（根据matrix.user匹配Secrets）
+          TOKEN: ${{ secrets[format('TOKEN_{0}', matrix.user)] }}
+          # 可选：传递用户名到脚本，方便日志区分
+          USER_NAME: ${{ matrix.user }}
