@@ -8,7 +8,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // ==================== 配置 ====================
-const TOKEN = '';
+const TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI2ODIzLCJNYXBDbGFpbXMiOnt9fQ.al3y6AgmKH4p45TGebiKsJUt0ZSiwTfCuePOeFtoVR8';
 //eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjI2NzYxLCJNYXBDbGFpbXMiOnt9fQ.-YS8M-Rk6dGpAn91xTavQkbr7iUGhbRE2CKJ2p9M5tQ
 const ENABLE_GAMBLING = true;
 
