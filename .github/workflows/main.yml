@@ -1,18 +1,35 @@
 name: YW-Auto-Bot
 
 on:
-  workflow_dispatch:
+  workflow_dispatch: # 手动触发
   schedule:
-    - cron: '1 */1 * * *'
+    - cron: '1 */1 * * *'  # 每小时第1分钟执行
 
 jobs:
+  # 前置Job：生成用户矩阵数据（USER1~USER10）
+  generate-matrix:
+    runs-on: ubuntu-latest
+    outputs:
+      # 输出矩阵数据，供后续Job使用
+      user-matrix: ${{ steps.set-matrix.outputs.users }}
+    steps:
+      - name: 生成USER1~USER10的矩阵列表
+        id: set-matrix
+        run: |
+          # 使用shell命令生成用户列表（无需GitHub Actions内置函数）
+          users=$(seq 1 10 | awk '{print "\"USER" $0 "\""}' | paste -sd "," -)
+          # 格式化为GitHub Actions可识别的矩阵JSON格式
+          echo "users=[${users}]" >> $GITHUB_OUTPUT
+
+  # 核心Job：执行机器人脚本（引用前置Job生成的矩阵）
   execute-bot:
+    needs: generate-matrix # 依赖前置Job，获取生成的矩阵
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        user: ${{ format('USER{0}', range(1, 11)) }} # 生成USER1~USER10
-      max-parallel: 1
-      fail-fast: false # 配合容错，确保个别用户跳过不影响后续
+        user: ${{ fromJSON(needs.generate-matrix.outputs.user-matrix) }} # 解析前置Job输出的矩阵
+      max-parallel: 1 # 保持串行执行
+      fail-fast: false # 可选，避免单个用户失败影响后续
 
     steps:
       - name: 1. 拉取代码
