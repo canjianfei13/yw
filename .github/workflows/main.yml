@@ -32,27 +32,37 @@ jobs:
       fail-fast: false # 可选，避免单个用户失败影响后续
 
     steps:
-      - name: 1. 拉取代码
+      # 第一步就验证Secrets，如果不存在则跳过整个Job
+      - name: 1. 验证Secrets是否存在
+        id: check-secrets
+        run: |
+          if [ -n "$TOKEN" ]; then
+            echo "✅ 检测到${{ matrix.user }}对应的Secrets存在，继续执行后续步骤"
+            echo "secrets_exist=true" >> $GITHUB_OUTPUT
+          else
+            echo "⚠️ 未检测到${{ matrix.user }}对应的Secrets，跳过整个Job"
+            echo "secrets_exist=false" >> $GITHUB_OUTPUT
+            # 使用GitHub Actions的特殊命令来跳过整个Job
+            echo "::warning::跳过 ${{ matrix.user }} 的所有操作，因为未配置相应的Secrets"
+            exit 0
+          fi
+        env:
+          TOKEN: ${{ secrets[format('TOKEN_{0}', matrix.user)] }}
+
+      - name: 2. 拉取代码
         uses: actions/checkout@v3
 
-      - name: 2. 安装 Node.js 16
+      - name: 3. 安装 Node.js 16
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           cache: 'npm'
 
-      - name: 3. 安装依赖
+      - name: 4. 安装依赖
         run: npm install
 
-      - name: 4. 验证Secrets是否存在，仅非空时执行脚本
-        run: |
-          if [ -n "$TOKEN" ]; then
-            echo "✅ 检测到${{ matrix.user }}对应的Secrets存在，开始执行脚本"
-            node index.js
-          else
-            echo "ℹ️  未检测到${{ matrix.user }}对应的Secrets，跳过执行"
-            exit 0 # 返回成功状态，不标记为失败
-          fi
+      - name: 5. 执行机器人脚本
+        run: node index.js
         env:
           TOKEN: ${{ secrets[format('TOKEN_{0}', matrix.user)] }}
           USER_NAME: ${{ matrix.user }}
