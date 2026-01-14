@@ -12,7 +12,7 @@ jobs:
     strategy:
       matrix:
         # 配置需要处理的用户（与Secrets命名对应，如USER1、USER2）
-        user: [USER1, USER2, USER3, USER4, USER5] # 可扩展：添加USER3、USER4等
+        user: [USER1, USER2, USER3, USER4, USER5, USER6] # 可扩展：添加USER3、USER4等
       max-parallel: 1 # 关键：强制逐个处理用户，避免并行
 
     steps:
