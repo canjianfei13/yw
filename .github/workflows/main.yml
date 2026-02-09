@@ -3,7 +3,7 @@ name: YW-Auto-Bot
 on:
   workflow_dispatch: # 手动触发
   schedule:
-    - cron: '30 * * * *'  # 每小时第1分钟执行
+    - cron: '*/30 * * * *'  # 每小时第1分钟执行
 
 jobs:
   # 前置Job：生成用户矩阵数据（USER1~USER10）
