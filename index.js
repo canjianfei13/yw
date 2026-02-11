@@ -14,7 +14,7 @@ const TOKEN = process.env.TOKEN;
 const USER_NAME = process.env.USER_NAME || '未知用户';
 const ENABLE_GAMBLING = true;
 // 樗蒲功能运行的起始小时（24小时制）
-const GAMBLING_START_HOUR = 20;
+//const GAMBLING_START_HOUR = 20;
 
 const CONFIG = {
   baseUrl: 'https://gacha.reamicro.zhendong.ltd',
@@ -184,11 +184,19 @@ function hasEnoughMaterials(myProps, requiredProps) {
   return true;
 }
 
-// 检查当前时间是否在樗蒲运行时间段内（20点以后）
+// 检查当前是否为【中国北京时间 20:00 以后】（精准无偏差）
 function isGamblingTime() {
-  const now = new Date();
-  const currentHour = now.getHours(); // 获取当前小时（24小时制，0-23）
-  return currentHour >= GAMBLING_START_HOUR;
+  // 1. 获取当前UTC时间戳
+  const nowUtc = new Date();
+  const utcTimestamp = nowUtc.getTime() + nowUtc.getTimezoneOffset() * 60 * 1000;
+  
+  // 2. 换算成北京时间（UTC+8）的时间戳
+  const beijingTimestamp = utcTimestamp + 8 * 60 * 60 * 1000;
+  const beijingTime = new Date(beijingTimestamp);
+  
+  // 3. 获取北京时间的小时数（0-23），判断是否≥20点
+  const beijingHour = beijingTime.getHours();
+  return beijingHour >= 20;
 }
 
 // ==================== 主函数 ====================
