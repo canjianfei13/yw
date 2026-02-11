@@ -13,6 +13,8 @@ const TOKEN = process.env.TOKEN;
 // 从环境变量读取用户名（用于日志区分）
 const USER_NAME = process.env.USER_NAME || '未知用户';
 const ENABLE_GAMBLING = true;
+// 樗蒲功能运行的起始小时（24小时制）
+const GAMBLING_START_HOUR = 20;
 
 const CONFIG = {
   baseUrl: 'https://gacha.reamicro.zhendong.ltd',
@@ -180,6 +182,13 @@ function hasEnoughMaterials(myProps, requiredProps) {
     }
   }
   return true;
+}
+
+// 检查当前时间是否在樗蒲运行时间段内（20点以后）
+function isGamblingTime() {
+  const now = new Date();
+  const currentHour = now.getHours(); // 获取当前小时（24小时制，0-23）
+  return currentHour >= GAMBLING_START_HOUR;
 }
 
 // ==================== 主函数 ====================
@@ -466,96 +475,102 @@ async function main() {
 
     // ==================== 勾栏功能 ====================
     if (ENABLE_GAMBLING) {
-      console.log(`\n\n[${USER_NAME}] === 勾栏 ===\n`);
+      // 新增：检查当前时间是否在20点以后
+      if (!isGamblingTime()) {
+        console.log(`\n\n[${USER_NAME}] === 勾栏 ===\n`);
+        console.log(`[${USER_NAME}] 当前时间未到20点，跳过樗蒲功能执行`);
+      } else {
+        console.log(`\n\n[${USER_NAME}] === 勾栏 ===\n`);
 
-      const formatDate = (ts) => {
-        const num = Number(ts);
-        if (num > 10000000000) {
-          return new Date(num).toLocaleString();
-        } else {
-          return new Date(num * 1000).toLocaleString();
-        }
-      };
-
-      const todayResult = await grpcClient.call(
-        'api.game.Game',
-        'GetTodyGambling',
-        'api.game.EmptyRequest',
-        'api.game.Gambling',
-        {}
-      );
-
-      if (todayResult.id) {
-        console.log(`[${USER_NAME}] 勾栏: #${todayResult.id} - ${todayResult.name}`);
-        console.log(`[${USER_NAME}] 奖金池: ${todayResult.prize}`);
-        console.log(`[${USER_NAME}] 参与人数: ${todayResult.people}`);
-
-        const time = [];
-        if (todayResult.startTime) time.push(`开始时间: ${formatDate(todayResult.startTime)}`);
-        if (todayResult.endTime) time.push(`结束时间: ${formatDate(todayResult.endTime)}`);
-        if (time.length > 0) console.log(`[${USER_NAME}] 时间:`);
-        time.forEach(t => console.log(`[${USER_NAME}]     ${t}`));
-
-        const parseRank = (rankStr) => {
-          if (!rankStr) return null;
-          const parts = rankStr.split(',');
-          return { id: parts[0], name: parts[1], score: parts[2], time: parts[3] };
+        const formatDate = (ts) => {
+          const num = Number(ts);
+          if (num > 10000000000) {
+            return new Date(num).toLocaleString();
+          } else {
+            return new Date(num * 1000).toLocaleString();
+          }
         };
 
-        if (todayResult.first) {
-          const first = parseRank(todayResult.first);
-          console.log(`[${USER_NAME}] 第一名: ${first.name} (分数:${first.score})`);
-        }
-        if (todayResult.second) {
-          const second = parseRank(todayResult.second);
-          console.log(`[${USER_NAME}] 第二名: ${second.name} (分数:${second.score})`);
-        }
-        if (todayResult.third) {
-          const third = parseRank(todayResult.third);
-          console.log(`[${USER_NAME}] 第三名: ${third.name} (分数:${third.score})`);
-        }
+        const todayResult = await grpcClient.call(
+          'api.game.Game',
+          'GetTodyGambling',
+          'api.game.EmptyRequest',
+          'api.game.Gambling',
+          {}
+        );
 
-        console.log(`[${USER_NAME}] 可投注: ${todayResult.canBet ? '是' : '否'}`);
-        console.log(`[${USER_NAME}] 奖励状态: ${todayResult.rewardStatus ?? '未开奖'}`);
+        if (todayResult.id) {
+          console.log(`[${USER_NAME}] 勾栏: #${todayResult.id} - ${todayResult.name}`);
+          console.log(`[${USER_NAME}] 奖金池: ${todayResult.prize}`);
+          console.log(`[${USER_NAME}] 参与人数: ${todayResult.people}`);
 
-        // 投注
-        if (todayResult.canBet) {
-          console.log(`\n[${USER_NAME}] >>> 投注...`);
-          try {
-            const betResult = await grpcClient.call(
-              'api.game.Game',
-              'BetGambling',
-              'api.game.BetGamblingRequest',
-              'api.game.BetGamblingResponse',
-              { id: todayResult.id }
-            );
-            if (betResult.info) console.log(`[${USER_NAME}] 点数: ${betResult.info}`);
-            if (betResult.gambling) {
-              console.log(`[${USER_NAME}] ✓ 投注成功 (人数:${betResult.gambling.people}, 奖金池:${betResult.gambling.prize})`);
-            }
-          } catch (error) {
-            console.log(`[${USER_NAME}] ✗ 投注失败: ${error.message}`);
+          const time = [];
+          if (todayResult.startTime) time.push(`开始时间: ${formatDate(todayResult.startTime)}`);
+          if (todayResult.endTime) time.push(`结束时间: ${formatDate(todayResult.endTime)}`);
+          if (time.length > 0) console.log(`[${USER_NAME}] 时间:`);
+          time.forEach(t => console.log(`[${USER_NAME}]     ${t}`));
+
+          const parseRank = (rankStr) => {
+            if (!rankStr) return null;
+            const parts = rankStr.split(',');
+            return { id: parts[0], name: parts[1], score: parts[2], time: parts[3] };
+          };
+
+          if (todayResult.first) {
+            const first = parseRank(todayResult.first);
+            console.log(`[${USER_NAME}] 第一名: ${first.name} (分数:${first.score})`);
           }
-        }
+          if (todayResult.second) {
+            const second = parseRank(todayResult.second);
+            console.log(`[${USER_NAME}] 第二名: ${second.name} (分数:${second.score})`);
+          }
+          if (todayResult.third) {
+            const third = parseRank(todayResult.third);
+            console.log(`[${USER_NAME}] 第三名: ${third.name} (分数:${third.score})`);
+          }
 
-        // 领取奖励
-        if (todayResult.rewardStatus && todayResult.rewardStatus > 0) {
-          console.log(`\n[${USER_NAME}] >>> 领取奖励...`);
-          try {
-            const rewardResult = await grpcClient.call(
-              'api.game.Game',
-              'GetGamblingReward',
-              'api.game.GetGamblingRewardRequest',
-              'api.game.Gambling',
-              { id: todayResult.id }
-            );
-            if (rewardResult.rewardStatus > 0) {
-              console.log(`[${USER_NAME}] ✓ 已领取奖励`);
-            } else {
-              console.log(`[${USER_NAME}] ✗ 无可领取奖励`);
+          console.log(`[${USER_NAME}] 可投注: ${todayResult.canBet ? '是' : '否'}`);
+          console.log(`[${USER_NAME}] 奖励状态: ${todayResult.rewardStatus ?? '未开奖'}`);
+
+          // 投注
+          if (todayResult.canBet) {
+            console.log(`\n[${USER_NAME}] >>> 投注...`);
+            try {
+              const betResult = await grpcClient.call(
+                'api.game.Game',
+                'BetGambling',
+                'api.game.BetGamblingRequest',
+                'api.game.BetGamblingResponse',
+                { id: todayResult.id }
+              );
+              if (betResult.info) console.log(`[${USER_NAME}] 点数: ${betResult.info}`);
+              if (betResult.gambling) {
+                console.log(`[${USER_NAME}] ✓ 投注成功 (人数:${betResult.gambling.people}, 奖金池:${betResult.gambling.prize})`);
+              }
+            } catch (error) {
+              console.log(`[${USER_NAME}] ✗ 投注失败: ${error.message}`);
             }
-          } catch (error) {
-            console.log(`[${USER_NAME}] ✗ 领取失败: ${error.message}`);
+          }
+
+          // 领取奖励
+          if (todayResult.rewardStatus && todayResult.rewardStatus > 0) {
+            console.log(`\n[${USER_NAME}] >>> 领取奖励...`);
+            try {
+              const rewardResult = await grpcClient.call(
+                'api.game.Game',
+                'GetGamblingReward',
+                'api.game.GetGamblingRewardRequest',
+                'api.game.Gambling',
+                { id: todayResult.id }
+              );
+              if (rewardResult.rewardStatus > 0) {
+                console.log(`[${USER_NAME}] ✓ 已领取奖励`);
+              } else {
+                console.log(`[${USER_NAME}] ✗ 无可领取奖励`);
+              }
+            } catch (error) {
+              console.log(`[${USER_NAME}] ✗ 领取失败: ${error.message}`);
+            }
           }
         }
       }
